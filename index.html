@@ -2,55 +2,63 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruits 網頁 3A 還原版 - Index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Blox Fruits 手機網頁版 - 高度還原</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; touch-action: none; }
     #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     
     /* UI Overlay */
     #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
     
-    /* HUD Panel */
-    .hud-panel { position: absolute; bottom: 20px; left: 20px; width: 340px; background: rgba(15, 23, 42, 0.85); border: 2px solid #3b82f6; border-radius: 10px; padding: 12px; color: white; pointer-events: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-    .hud-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; display: flex; justify-content: space-between; }
-    .hud-fruit { color: #f59e0b; font-weight: bold; }
+    /* HUD Panel (Top-Left on Mobile) */
+    .hud-panel { position: absolute; top: 12px; left: 12px; width: 220px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 10px; color: white; pointer-events: auto; backdrop-filter: blur(4px); }
+    .hud-title { font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 2px; }
+    .hud-fruit { color: #f59e0b; font-weight: bold; font-size: 11px; }
     .hud-money { color: #4ade80; font-weight: bold; }
     
-    .bar-container { width: 100%; height: 18px; background: #1e293b; border-radius: 4px; margin: 6px 0; overflow: hidden; position: relative; border: 1px solid #475569; }
+    .bar-container { width: 100%; height: 12px; background: #1e293b; border-radius: 3px; margin: 4px 0; overflow: hidden; position: relative; border: 1px solid #475569; }
     .bar-fill { height: 100%; transition: width 0.1s ease-out; }
     #hp-bar { background: linear-gradient(90deg, #ef4444, #f87171); width: 100%; }
     #exp-bar { background: linear-gradient(90deg, #3b82f6, #60a5fa); width: 0%; }
-    .bar-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 3px #000; }
+    .bar-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
     
-    /* Hotbar / Move Keys */
-    .skills-container { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; pointer-events: auto; }
-    .skill-card { width: 70px; height: 70px; background: rgba(15, 23, 42, 0.85); border: 2px solid #3b82f6; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .skill-key { position: absolute; top: 4px; left: 6px; font-size: 11px; color: #93c5fd; font-weight: 800; }
-    .skill-name { font-size: 11px; text-align: center; margin-top: 12px; }
-    .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #ef4444; border-radius: 8px; visibility: hidden; font-weight: bold; }
+    /* Mobile Controls Area */
+    /* Virtual Joystick Zone (Bottom-Left) */
+    #joystick-zone { position: absolute; bottom: 20px; left: 20px; width: 130px; height: 130px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.25); border-radius: 50%; pointer-events: auto; display: flex; align-items: center; justify-content: center; touch-action: none; }
+    #joystick-knob { width: 50px; height: 50px; background: rgba(59, 130, 246, 0.8); border: 2px solid #93c5fd; border-radius: 50%; position: absolute; transform: translate(0, 0); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
 
-    /* Crosshair & Instructions */
-    #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; background: rgba(255,255,255,0.3); }
-    #instructions { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.8); color: white; padding: 10px 24px; border-radius: 20px; font-size: 13px; text-align: center; border: 1px solid #3b82f6; }
-
-    /* Interactive Prompts / Dialogs */
-    #prompt { position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #f59e0b; padding: 8px 16px; border-radius: 8px; font-weight: bold; display: none; border: 1px solid #f59e0b; }
+    /* Action Buttons (Bottom-Right) */
+    .controls-right { position: absolute; bottom: 20px; right: 20px; display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 10px; pointer-events: auto; }
+    .action-btn { width: 60px; height: 60px; background: rgba(15, 23, 42, 0.85); border: 2px solid #3b82f6; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5); active { transform: scale(0.92); } }
+    .action-btn:active { background: rgba(59, 130, 246, 0.6); }
+    .btn-label { font-size: 10px; color: #93c5fd; margin-bottom: 2px; }
+    .btn-name { font-size: 11px; text-align: center; }
     
-    #gacha-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: rgba(15, 23, 42, 0.95); border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; color: white; display: none; text-align: center; pointer-events: auto; }
-    #gacha-modal h3 { color: #f59e0b; margin-bottom: 12px; }
-    #gacha-modal button { margin-top: 15px; padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    #gacha-modal button:hover { background: #1d4ed8; }
+    /* Special placement for jump & attack */
+    #btn-attack { grid-column: 3; grid-row: 2; background: rgba(220, 38, 38, 0.85); border-color: #f87171; width: 65px; height: 65px; }
+    #btn-jump { grid-column: 3; grid-row: 1; background: rgba(16, 185, 129, 0.85); border-color: #34d399; }
+    #btn-z { grid-column: 1; grid-row: 2; }
+    #btn-x { grid-column: 2; grid-row: 2; }
+    #btn-interact { grid-column: 2; grid-row: 1; background: rgba(245, 158, 11, 0.85); border-color: #fbbf24; display: none; }
+
+    .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; font-size: 16px; color: #ef4444; border-radius: 50%; visibility: hidden; font-weight: bold; }
+
+    /* Crosshair & Prompts */
+    #crosshair { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; }
+
+    /* Modal for Mobile */
+    #gacha-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 300px; background: rgba(15, 23, 42, 0.95); border: 2px solid #f59e0b; border-radius: 12px; padding: 16px; color: white; display: none; text-align: center; pointer-events: auto; }
+    #gacha-modal h3 { color: #f59e0b; font-size: 16px; margin-bottom: 8px; }
+    #gacha-modal button { margin-top: 12px; padding: 10px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; width: 100%; }
   </style>
 </head>
 <body>
   <div id="canvas-container"></div>
 
   <div id="ui-overlay">
-    <div id="instructions">點擊畫面進入視角控制 | WASD 移動 | 空格 跳躍 | 左鍵 攻擊 | Z / X 技能 | E 與 NPC 互動</div>
     <div id="crosshair"></div>
-    <div id="prompt">按下 E 與 NPC 對話</div>
 
     <!-- HUD -->
     <div class="hud-panel">
@@ -58,7 +66,7 @@
         <span>Lv. <span id="player-level">1</span></span>
         <span class="hud-money">$ <span id="player-money">1,000</span></span>
       </div>
-      <div style="font-size: 12px; margin-bottom: 4px;">果實: <span id="player-fruit" class="hud-fruit">炸彈果實</span></div>
+      <div class="hud-fruit">果實: <span id="player-fruit">炸彈果實</span></div>
       <div class="bar-container">
         <div id="hp-bar" class="bar-fill"></div>
         <div class="bar-text">HP: <span id="hp-text">100 / 100</span></div>
@@ -69,102 +77,110 @@
       </div>
     </div>
 
-    <!-- Hotbar -->
-    <div class="skills-container">
-      <div class="skill-card">
-        <span class="skill-key">M1</span>
-        <span class="skill-name" id="skill-m1-name">普通打擊</span>
+    <!-- Joystick Zone -->
+    <div id="joystick-zone">
+      <div id="joystick-knob"></div>
+    </div>
+
+    <!-- Mobile Action Buttons -->
+    <div class="controls-right">
+      <div class="action-btn" id="btn-interact">
+        <span class="btn-label">E</span>
+        <span class="btn-name">對話</span>
       </div>
-      <div class="skill-card">
-        <span class="skill-key">Z</span>
-        <span class="skill-name" id="skill-z-name">小型爆破</span>
+      <div class="action-btn" id="btn-jump">
+        <span class="btn-label">跳躍</span>
+        <span class="btn-name">JUMP</span>
+      </div>
+      <div class="action-btn" id="btn-z">
+        <span class="btn-label">Z 技能</span>
+        <span class="btn-name" id="name-z">爆破</span>
         <div id="cd-z" class="cooldown-overlay"></div>
       </div>
-      <div class="skill-card">
-        <span class="skill-key">X</span>
-        <span class="skill-name" id="skill-x-name">自爆衝擊</span>
+      <div class="action-btn" id="btn-x">
+        <span class="btn-label">X 技能</span>
+        <span class="btn-name" id="name-x">自爆</span>
         <div id="cd-x" class="cooldown-overlay"></div>
+      </div>
+      <div class="action-btn" id="btn-attack">
+        <span class="btn-label">攻擊</span>
+        <span class="btn-name" id="name-m1">打擊</span>
       </div>
     </div>
 
     <!-- Gacha Modal -->
     <div id="gacha-modal">
       <h3>惡魔果實商人</h3>
-      <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">花費 $500 隨機抽取一顆惡魔果實！</p>
+      <p style="font-size: 12px; color: #cbd5e1;">花費 $500 隨機抽取一顆惡魔果實！</p>
       <button id="btn-draw">隨機抽果實 ($500)</button>
-      <button id="btn-close" style="background: #475569; margin-left: 8px;">離開</button>
+      <button id="btn-close" style="background: #475569; margin-top: 6px;">離開</button>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.min.js"></script>
   <script>
-    // --- 1. Scene Setup ---
+    // --- 1. 遊戲基礎 (Three.js) ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x38bdf8);
-    scene.fog = new THREE.FogExp2(0x38bdf8, 0.012);
+    scene.fog = new THREE.FogExp2(0x38bdf8, 0.015);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xfffaed, 0.8);
-    dirLight.position.set(60, 120, 60);
+    dirLight.position.set(40, 80, 40);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
     scene.add(dirLight);
 
-    // --- 2. Environment ---
-    const oceanGeo = new THREE.PlaneGeometry(1200, 1200);
-    const oceanMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.8 });
-    const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+    // 地形
+    const ocean = new THREE.Mesh(
+      new THREE.PlaneGeometry(800, 800),
+      new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 })
+    );
     ocean.rotation.x = -Math.PI / 2;
     ocean.position.y = -2;
     scene.add(ocean);
 
-    const islandGeo = new THREE.CylinderGeometry(50, 55, 12, 32);
-    const islandMat = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.8 });
-    const island = new THREE.Mesh(islandGeo, islandMat);
-    island.position.y = 4;
+    const island = new THREE.Mesh(
+      new THREE.CylinderGeometry(40, 45, 10, 24),
+      new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.8 })
+    );
+    island.position.y = 3;
     island.receiveShadow = true;
     scene.add(island);
 
-    // NPC (Gacha Merchant)
+    // NPC
     const npcGroup = new THREE.Group();
-    const npcMat = new THREE.MeshStandardMaterial({ color: 0x7c3aed });
     const skinMat = new THREE.MeshStandardMaterial({ color: 0xfcd34d });
-    const npcTorso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.7), npcMat);
+    const npcTorso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.7), new THREE.MeshStandardMaterial({ color: 0x7c3aed }));
     npcTorso.position.y = 1.3;
     const npcHead = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), skinMat);
     npcHead.position.y = 2.5;
     npcGroup.add(npcTorso, npcHead);
-    npcGroup.position.set(0, 10, -10);
+    npcGroup.position.set(0, 8, -8);
     scene.add(npcGroup);
 
-    // --- 3. Player & Stats ---
+    // 玩家
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
-
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2563eb });
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), bodyMat);
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
     torso.position.y = 1.25;
-    torso.castShadow = true;
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
     head.position.y = 2.4;
-    head.castShadow = true;
     playerGroup.add(torso, head);
-    playerGroup.position.set(0, 10, 10);
+    playerGroup.position.set(0, 8, 8);
 
-    let level = 1, exp = 0, maxExp = 100;
-    let money = 1000;
-    let currentFruit = 'bomb'; // 'bomb', 'flame', 'ice'
+    // 數值與果實配置
+    let level = 1, exp = 0, maxExp = 100, money = 1000;
+    let currentFruit = 'bomb';
 
     const fruitsConfig = {
       bomb: { name: '炸彈果實', m1: '爆破拳', z: '小型爆破', x: '自爆衝擊', cdZ: 3, cdX: 6 },
@@ -172,78 +188,121 @@
       ice: { name: '冰霜果實', m1: '冰凍打擊', z: '冰錐射擊', x: '冰河世紀', cdZ: 3, cdX: 7 }
     };
 
-    // Enemies
+    // 敵人
     const enemies = [];
     function spawnEnemy(x, z) {
       const eGroup = new THREE.Group();
-      const eMat = new THREE.MeshStandardMaterial({ color: 0xdc2626 });
-      const eTorso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), eMat);
+      const eTorso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
       eTorso.position.y = 1.25;
       const eHead = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
       eHead.position.y = 2.4;
       eGroup.add(eTorso, eHead);
-      eGroup.position.set(x, 10, z);
+      eGroup.position.set(x, 8, z);
       scene.add(eGroup);
+      enemies.push({ mesh: eGroup, hp: 100, alive: true, spawnX: x, spawnZ: z });
+    }
+    spawnEnemy(10, 10);
+    spawnEnemy(-10, 12);
 
-      enemies.push({ mesh: eGroup, hp: 100, maxHp: 100, alive: true, spawnX: x, spawnZ: z });
+    // --- 2. 手機觸控與搖桿控制 (Touch Controls) ---
+    let joystickVector = { x: 0, y: 0 };
+    let yaw = 0, pitch = 0.2;
+    let velocityY = 0, isGrounded = false;
+
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickKnob = document.getElementById('joystick-knob');
+    let joystickTouchId = null;
+    let joystickCenter = { x: 0, y: 0 };
+
+    // 搖桿觸控處理
+    joystickZone.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      joystickTouchId = touch.identifier;
+      const rect = joystickZone.getBoundingClientRect();
+      joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      updateJoystick(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === joystickTouchId) {
+          updateJoystick(touch.clientX, touch.clientY);
+        } else if (cameraTouchId === touch.identifier) {
+          // 右半螢幕滑動旋轉視角
+          const deltaX = touch.clientX - lastCameraTouchX;
+          const deltaY = touch.clientY - lastCameraTouchY;
+          yaw -= deltaX * 0.005;
+          pitch -= deltaY * 0.005;
+          pitch = Math.max(-0.2, Math.min(Math.PI / 3, pitch));
+          lastCameraTouchX = touch.clientX;
+          lastCameraTouchY = touch.clientY;
+        }
+      }
+    }, { passive: false });
+
+    function resetJoystick() {
+      joystickTouchId = null;
+      joystickVector = { x: 0, y: 0 };
+      joystickKnob.style.transform = `translate(0px, 0px)`;
     }
 
-    spawnEnemy(12, 12);
-    spawnEnemy(-12, 15);
-    spawnEnemy(15, -10);
-
-    // --- 4. Movement & Controls ---
-    let moveF = false, moveB = false, moveL = false, moveR = false;
-    let velocityY = 0, isGrounded = false;
-    let yaw = 0, pitch = 0;
-
-    document.body.addEventListener('click', (e) => {
-      if (e.target.tagName !== 'BUTTON' && document.getElementById('gacha-modal').style.display !== 'block') {
-        document.body.requestPointerLock();
+    window.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === joystickTouchId) resetJoystick();
+        if (touch.identifier === cameraTouchId) cameraTouchId = null;
       }
     });
 
-    document.addEventListener('mousemove', (e) => {
-      if (document.pointerLockElement === document.body) {
-        yaw -= e.movementX * 0.003;
-        pitch -= e.movementY * 0.003;
-        pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 3, pitch));
+    function updateJoystick(clientX, clientY) {
+      const maxRadius = 40;
+      let dx = clientX - joystickCenter.x;
+      let dy = clientY - joystickCenter.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+      }
+
+      joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+      joystickVector = { x: dx / maxRadius, y: dy / maxRadius };
+    }
+
+    // 右半螢幕觸控控制視角 (Touch Look)
+    let cameraTouchId = null;
+    let lastCameraTouchX = 0, lastCameraTouchY = 0;
+
+    window.addEventListener('touchstart', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        // 如果觸控點在螢幕右半邊且不是按鈕
+        if (touch.clientX > window.innerWidth / 2 && cameraTouchId === null) {
+          const target = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (target && (target.classList.contains('action-btn') || target.closest('#gacha-modal'))) continue;
+          cameraTouchId = touch.identifier;
+          lastCameraTouchX = touch.clientX;
+          lastCameraTouchY = touch.clientY;
+        }
       }
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (document.getElementById('gacha-modal').style.display === 'block') return;
-      switch (e.code) {
-        case 'KeyW': moveF = true; break;
-        case 'KeyS': moveB = true; break;
-        case 'KeyA': moveL = true; break;
-        case 'KeyD': moveR = true; break;
-        case 'Space': if (isGrounded) { velocityY = 12; isGrounded = false; } break;
-        case 'KeyZ': castSkill('z'); break;
-        case 'KeyX': castSkill('x'); break;
-        case 'KeyE': checkNPCInteract(); break;
-      }
+    // 按鈕綁定
+    document.getElementById('btn-jump').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (isGrounded) { velocityY = 11; isGrounded = false; }
     });
+    document.getElementById('btn-attack').addEventListener('touchstart', (e) => { e.preventDefault(); basicAttack(); });
+    document.getElementById('btn-z').addEventListener('touchstart', (e) => { e.preventDefault(); castSkill('z'); });
+    document.getElementById('btn-x').addEventListener('touchstart', (e) => { e.preventDefault(); castSkill('x'); });
+    document.getElementById('btn-interact').addEventListener('touchstart', (e) => { e.preventDefault(); interactNPC(); });
 
-    document.addEventListener('keyup', (e) => {
-      switch (e.code) {
-        case 'KeyW': moveF = false; break;
-        case 'KeyS': moveB = false; break;
-        case 'KeyA': moveL = false; break;
-        case 'KeyD': moveR = false; break;
-      }
-    });
-
-    document.addEventListener('mousedown', (e) => {
-      if (e.button === 0 && document.pointerLockElement === document.body) {
-        basicAttack();
-      }
-    });
-
-    // --- 5. Combat & Skills ---
+    // --- 3. 戰鬥與技能邏輯 ---
     const particles = [];
-    function createEffect(pos, color, scale = 1, count = 15) {
-      const pGeo = new THREE.SphereGeometry(0.3 * scale, 8, 8);
+    function createEffect(pos, color, scale = 1, count = 12) {
+      const pGeo = new THREE.SphereGeometry(0.3 * scale, 6, 6);
       const pMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.9 });
       for (let i = 0; i < count; i++) {
         const p = new THREE.Mesh(pGeo, pMat);
@@ -251,8 +310,8 @@
         scene.add(p);
         particles.push({
           mesh: p,
-          vel: new THREE.Vector3((Math.random() - 0.5) * 12 * scale, (Math.random() - 0.2) * 10 * scale, (Math.random() - 0.5) * 12 * scale),
-          life: 0.4
+          vel: new THREE.Vector3((Math.random() - 0.5) * 10 * scale, (Math.random() - 0.2) * 8 * scale, (Math.random() - 0.5) * 10 * scale),
+          life: 0.35
         });
       }
     }
@@ -266,13 +325,13 @@
           if (enemy.hp <= 0) {
             enemy.alive = false;
             scene.remove(enemy.mesh);
-            addRewards(150, 60);
+            addRewards(150, 50);
             setTimeout(() => {
               enemy.hp = 100;
               enemy.alive = true;
-              enemy.mesh.position.set(enemy.spawnX, 10, enemy.spawnZ);
+              enemy.mesh.position.set(enemy.spawnX, 8, enemy.spawnZ);
               scene.add(enemy.mesh);
-            }, 5000);
+            }, 4000);
           }
         }
       });
@@ -282,7 +341,7 @@
       const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
       const pos = playerGroup.position.clone().add(fwd.multiplyScalar(2)).add(new THREE.Vector3(0, 1.2, 0));
       const color = currentFruit === 'flame' ? 0xf97316 : (currentFruit === 'ice' ? 0x38bdf8 : 0xeab308);
-      createEffect(pos, color, 0.5, 10);
+      createEffect(pos, color, 0.5, 8);
       checkHit(pos, 2.5, 25);
     }
 
@@ -294,13 +353,13 @@
         startCD('cd-z', cfg.cdZ, () => cdZActive = false);
         const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
         const pos = playerGroup.position.clone().add(fwd.multiplyScalar(4));
-        createEffect(pos, currentFruit === 'ice' ? 0x38bdf8 : 0xf97316, 1.5, 25);
-        checkHit(pos, 4, 50);
+        createEffect(pos, currentFruit === 'ice' ? 0x38bdf8 : 0xf97316, 1.4, 20);
+        checkHit(pos, 3.5, 50);
       } else if (type === 'x' && !cdXActive) {
         cdXActive = true;
         startCD('cd-x', cfg.cdX, () => cdXActive = false);
-        createEffect(playerGroup.position, currentFruit === 'bomb' ? 0xef4444 : (currentFruit === 'flame' ? 0xf97316 : 0x0284c7), 3, 40);
-        checkHit(playerGroup.position, 8, 90);
+        createEffect(playerGroup.position, currentFruit === 'bomb' ? 0xef4444 : (currentFruit === 'flame' ? 0xf97316 : 0x0284c7), 2.5, 30);
+        checkHit(playerGroup.position, 7, 85);
       }
     }
 
@@ -316,15 +375,10 @@
       }, 1000);
     }
 
-    // --- 6. Progression & Gacha System ---
     function addRewards(m, e) {
       money += m;
       exp += e;
-      if (exp >= maxExp) {
-        level++;
-        exp -= maxExp;
-        maxExp = Math.floor(maxExp * 1.3);
-      }
+      if (exp >= maxExp) { level++; exp -= maxExp; maxExp = Math.floor(maxExp * 1.3); }
       updateUI();
     }
 
@@ -332,20 +386,17 @@
       document.getElementById('player-level').innerText = level;
       document.getElementById('player-money').innerText = money.toLocaleString();
       document.getElementById('exp-bar').style.width = `${(exp / maxExp) * 100}%`;
-      document.getElementById('exp-text').innerText = `${exp} / ${maxExp}`;
+      document.getElementById('exp-text').innerText = `${exp}/${maxExp}`;
       
       const cfg = fruitsConfig[currentFruit];
       document.getElementById('player-fruit').innerText = cfg.name;
-      document.getElementById('skill-m1-name').innerText = cfg.m1;
-      document.getElementById('skill-z-name').innerText = cfg.z;
-      document.getElementById('skill-x-name').innerText = cfg.x;
+      document.getElementById('name-m1').innerText = cfg.m1;
+      document.getElementById('name-z').innerText = cfg.z;
+      document.getElementById('name-x').innerText = cfg.x;
     }
 
-    function checkNPCInteract() {
-      if (playerGroup.position.distanceTo(npcGroup.position) < 4) {
-        document.exitPointerLock();
-        document.getElementById('gacha-modal').style.display = 'block';
-      }
+    function interactNPC() {
+      document.getElementById('gacha-modal').style.display = 'block';
     }
 
     document.getElementById('btn-close').addEventListener('click', () => {
@@ -358,65 +409,55 @@
         const keys = Object.keys(fruitsConfig);
         currentFruit = keys[Math.floor(Math.random() * keys.length)];
         updateUI();
-        alert(`恭喜抽中：${fruitsConfig[currentFruit].name}！`);
+        alert(`抽中：${fruitsConfig[currentFruit].name}！`);
         document.getElementById('gacha-modal').style.display = 'none';
-      } else {
-        alert('金幣不足！擊敗敵人獲取更多金幣。');
-      }
+      } else { alert('金幣不足！'); }
     });
 
-    // --- 7. Game Loop ---
+    // --- 4. Game Loop ---
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      const delta = clock.getDelta();
+      const delta = Math.min(clock.getDelta(), 0.1);
 
-      // NPC Interaction Prompt
-      if (playerGroup.position.distanceTo(npcGroup.position) < 4) {
-        document.getElementById('prompt').style.display = 'block';
-      } else {
-        document.getElementById('prompt').style.display = 'none';
-      }
+      // NPC 按鈕顯隱
+      const distToNPC = playerGroup.position.distanceTo(npcGroup.position);
+      document.getElementById('btn-interact').style.display = distToNPC < 4 ? 'flex' : 'none';
 
-      // Player Movement
-      const moveDir = new THREE.Vector3();
-      if (moveF) moveDir.z -= 1;
-      if (moveB) moveDir.z += 1;
-      if (moveL) moveDir.x -= 1;
-      if (moveR) moveDir.x += 1;
-      moveDir.normalize();
-
-      if (moveDir.length() > 0) {
-        const rotDir = moveDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-        playerGroup.position.x += rotDir.x * 14 * delta;
-        playerGroup.position.z += rotDir.z * 14 * delta;
+      // 玩家移動 (搖桿控制)
+      if (Math.abs(joystickVector.x) > 0.1 || Math.abs(joystickVector.y) > 0.1) {
+        const moveDir = new THREE.Vector3(joystickVector.x, 0, joystickVector.y).normalize();
+        const rotDir = moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+        playerGroup.position.x += rotDir.x * 12 * delta;
+        playerGroup.position.z += rotDir.z * 12 * delta;
         playerGroup.rotation.y = Math.atan2(rotDir.x, rotDir.z) + Math.PI;
       }
 
-      // Physics
-      velocityY -= 28 * delta;
+      // 重力物理
+      velocityY -= 26 * delta;
       playerGroup.position.y += velocityY * delta;
-      if (playerGroup.position.y <= 10) {
-        playerGroup.position.y = 10;
+      if (playerGroup.position.y <= 8) {
+        playerGroup.position.y = 8;
         velocityY = 0;
         isGrounded = true;
       }
 
-      // Third Person Camera
+      // 攝影機視角跟隨
+      const camDist = 8;
       const camOffset = new THREE.Vector3(
-        Math.sin(yaw) * Math.cos(pitch) * 9,
-        Math.sin(pitch) * 9 + 2,
-        Math.cos(yaw) * Math.cos(pitch) * 9
+        Math.sin(yaw) * Math.cos(pitch) * camDist,
+        Math.sin(pitch) * camDist + 1.8,
+        Math.cos(yaw) * Math.cos(pitch) * camDist
       );
       camera.position.copy(playerGroup.position).add(camOffset);
-      camera.lookAt(playerGroup.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
+      camera.lookAt(playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0)));
 
-      // Particles Update
+      // 粒子更新
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.life -= delta;
         p.mesh.position.addScaledVector(p.vel, delta);
-        p.mesh.scale.multiplyScalar(0.94);
+        p.mesh.scale.multiplyScalar(0.93);
         if (p.life <= 0) {
           scene.remove(p.mesh);
           particles.splice(i, 1);
